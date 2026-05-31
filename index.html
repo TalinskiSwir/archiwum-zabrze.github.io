@@ -1,276 +1,477 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zabrze Dawne — Archiwum Fotograficzne XX Wieku</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:wght@300;400&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --ink: #1a1410; --paper: #f5f0e8; --sepia: #8b6914;
-      --sepia-light: #d4b483; --sepia-pale: #ede0c4;
-      --brown-mid: #5c3d1e; --muted: #6b5a3e; --border: #c9a96e;
-    }
-    body { background: var(--paper); color: var(--ink); font-family: 'Source Serif 4', Georgia, serif; font-weight: 300; line-height: 1.7; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archiwum zdjęć Zabrza · XX wiek (edycja + filtry)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #2b2b2b;
+            font-family: 'Courier New', Courier, monospace;
+            color: #d4d4d4;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #f0e6d2;
+            border-bottom: 2px solid #5a5a5a;
+            padding-bottom: 0.2em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .top-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .btn {
+            background: #4a4035;
+            border: 1px solid #7a6f5e;
+            color: #f0e6d2;
+            padding: 8px 18px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 4px;
+        }
+        .btn:hover { background: #6b5e4a; border-color: #b0a590; }
 
-    header { text-align: center; padding: 4rem 2rem 3rem; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
-    header::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(139,105,20,0.07) 39px, rgba(139,105,20,0.07) 40px); pointer-events: none; }
-    .header-ornament { font-size: 0.75rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--sepia); margin-bottom: 1rem; }
-    h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.4rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.1; margin-bottom: 0.4rem; }
-    .header-sub { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.1rem; color: var(--muted); margin-bottom: 1.5rem; }
-    .header-rule { display: flex; align-items: center; justify-content: center; gap: 0.75rem; color: var(--sepia); }
-    .header-rule::before, .header-rule::after { content: ''; width: 80px; height: 1px; background: var(--border); }
+        /* Filtry dekad */
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+        .filter-btn {
+            background: #3a3a3a;
+            border: 1px solid #5c5c5c;
+            color: #ddd;
+            padding: 6px 14px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 4px;
+        }
+        .filter-btn:hover {
+            background: #4e4e4e;
+            border-color: #b0a590;
+            color: #f5f0e6;
+        }
+        .filter-btn.active {
+            background: #6b5e4a;
+            border-color: #c0b090;
+            color: #fff;
+            font-weight: bold;
+        }
 
-    .intro { max-width: 680px; margin: 3rem auto; padding: 0 2rem; text-align: center; font-size: 1.05rem; color: var(--muted); }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+            max-width: 1100px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .card {
+            background: #3a342c;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #555;
+            transition: 0.2s;
+            position: relative;
+        }
+        .card:hover { border-color: #b0a590; transform: translateY(-4px); }
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+            filter: grayscale(20%) sepia(10%);
+        }
+        .card:hover img { filter: grayscale(0%) sepia(0%); }
+        .card .actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .card:hover .actions { opacity: 1; }
+        .icon-btn {
+            background: rgba(0,0,0,0.6);
+            border: none;
+            color: #ddd;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .icon-btn:hover { background: #b0a590; color: #1e1b16; }
+        .caption {
+            padding: 12px;
+            background: #2f2a22;
+            color: #ddd8ce;
+            font-size: 0.9rem;
+        }
+        .year { font-weight: bold; color: #c7b595; margin-right: 6px; }
 
-    .filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; padding: 1.5rem 2rem; border-top: 1px solid var(--sepia-pale); border-bottom: 1px solid var(--sepia-pale); margin-bottom: 3rem; }
-    .filter-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: 'Source Serif 4', serif; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.4rem 1rem; cursor: pointer; transition: background 0.2s, color 0.2s; }
-    .filter-btn:hover, .filter-btn.active { background: var(--sepia); border-color: var(--sepia); color: var(--paper); }
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(20,20,20,0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .lightbox.active { display: flex; }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 80vh;
+            border: 4px solid #b0a590;
+            background: #1e1b16;
+        }
+        .lightbox .close {
+            position: absolute;
+            top: 25px; right: 35px;
+            font-size: 40px;
+            color: #ccc;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .desc {
+            color: #dbceb0;
+            margin-top: 15px;
+            background: #2e2a22;
+            padding: 8px 20px;
+            border-radius: 4px;
+            max-width: 90%;
+            text-align: center;
+        }
 
-    .gallery { max-width: 1200px; margin: 0 auto; padding: 0 2rem 4rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2.5rem; }
-
-    .card { display: flex; flex-direction: column; cursor: pointer; transition: transform 0.25s; }
-    .card:hover { transform: translateY(-4px); }
-
-    .card-img-wrap { position: relative; overflow: hidden; background: var(--sepia-pale); border: 1px solid var(--border); aspect-ratio: 4/3; }
-    .card-img { width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(0.55) contrast(1.05) brightness(0.97); transition: filter 0.3s; }
-    .card:hover .card-img { filter: sepia(0.25) contrast(1.08) brightness(1.02); }
-
-    .card-caption { border: 1px solid var(--border); border-top: none; padding: 0.85rem 1rem; background: #faf6ed; flex: 1; }
-    .card-year { font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--sepia); margin-bottom: 0.25rem; }
-    .card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--ink); margin-bottom: 0.3rem; }
-    .card-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
-    .card-tag { display: inline-block; margin-top: 0.5rem; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sepia); border: 1px solid var(--sepia-light); padding: 0.15rem 0.5rem; }
-
-    .lightbox { display: none; position: fixed; inset: 0; background: rgba(15,10,5,0.92); z-index: 100; align-items: center; justify-content: center; padding: 2rem; }
-    .lightbox.open { display: flex; }
-    .lb-inner { max-width: 820px; width: 100%; position: relative; }
-    .lb-close { position: absolute; top: -2.5rem; right: 0; background: none; border: none; color: var(--sepia-light); font-size: 1.5rem; cursor: pointer; font-family: serif; }
-    .lb-img { width: 100%; display: block; filter: sepia(0.45) contrast(1.05); border: 2px solid var(--border); }
-    .lb-caption { background: var(--ink); padding: 1.25rem 1.5rem; border: 1px solid var(--sepia); border-top: none; }
-    .lb-year-tag { font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--sepia-light); margin-bottom: 0.4rem; }
-    .lb-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--paper); margin-bottom: 0.5rem; }
-    .lb-desc { font-size: 0.9rem; color: #a89070; line-height: 1.6; }
-    .lb-source { margin-top: 0.75rem; font-size: 0.75rem; color: var(--sepia); font-style: italic; }
-
-    footer { text-align: center; padding: 2.5rem 2rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--muted); line-height: 1.8; }
-    footer a { color: var(--sepia); }
-
-    @media (max-width: 600px) { .gallery { grid-template-columns: 1fr; } }
-  </style>
+        /* Modal edycji/dodawania */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #3a342c;
+            border: 1px solid #7a6f5e;
+            border-radius: 8px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            color: #ddd;
+        }
+        .modal-content h3 { margin-bottom: 15px; color: #f0e6d2; }
+        .modal-content label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #b0a590; }
+        .modal-content input, .modal-content textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            background: #2b2b2b;
+            border: 1px solid #5a5a5a;
+            color: #ddd;
+            font-family: inherit;
+            border-radius: 4px;
+        }
+        .modal-content .btn-group { display: flex; gap: 10px; justify-content: flex-end; }
+        footer { margin-top: auto; padding: 20px; color: #7a7568; text-align: center; }
+        @media (max-width: 500px) { .gallery { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
+    <h1>📷 Archiwum Zabrza · XX wiek</h1>
+    <p style="color:#b0a590; text-align:center;">Dodawaj, edytuj i filtruj zdjęcia według dekad</p>
 
-<header>
-  <div class="header-ornament">Śląsk · Górny Śląsk · Zabrze</div>
-  <h1>Zabrze Dawne</h1>
-  <p class="header-sub">Archiwum fotograficzne XX wieku</p>
-  <div class="header-rule">✦</div>
-</header>
-
-<p class="intro">
-  Zbiór archiwalnych fotografii Zabrza z domeny publicznej —
-  ulice, zakłady przemysłowe, architektura i życie codzienne
-  miasta na przestrzeni XX wieku.
-</p>
-
-<div class="filter-bar">
-  <button class="filter-btn active" onclick="filterCards('wszystkie',this)">Wszystkie</button>
-  <button class="filter-btn" onclick="filterCards('architektura',this)">Architektura</button>
-  <button class="filter-btn" onclick="filterCards('przemysł',this)">Przemysł</button>
-  <button class="filter-btn" onclick="filterCards('ulice',this)">Ulice i place</button>
-  <button class="filter-btn" onclick="filterCards('życie',this)">Życie codzienne</button>
-</div>
-
-<div class="gallery" id="gallery">
-
-  <!-- Karta 1: Wóz strażacki -->
-  <div class="card" data-tag="życie" onclick="openLightbox(this)">
-    <div class="card-img-wrap">
-      <img class="card-img" loading="lazy"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Fire_truck_Zabrze_Hindenburg_before_1939.jpg/640px-Fire_truck_Zabrze_Hindenburg_before_1939.jpg"
-        alt="Wóz strażacki Zabrze" />
+    <div class="top-bar">
+        <button class="btn" id="addPhotoBtn">＋ Dodaj zdjęcie</button>
+        <span style="color:#7a7568; font-size:0.85rem;">(zmiany zapisywane automatycznie)</span>
     </div>
-    <div class="card-caption">
-      <div class="card-year">przed 1939</div>
-      <div class="card-title">Wóz strażacki straży miejskiej</div>
-      <div class="card-desc">Jeden z pierwszych zmotoryzowanych wozów straży pożarnej Zabrza z okresu przed II wojną światową.</div>
-      <span class="card-tag">Życie codzienne</span>
-    </div>
-    <template class="lb-data">{"year":"przed 1939","title":"Wóz strażacki straży miejskiej w Zabrzu","desc":"Jeden z pierwszych zmotoryzowanych wozów straży pożarnej Zabrza. Fotografia z okresu przed II wojną światową, kiedy miasto nosiło nazwę Hindenburg O.S.","src":"Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Fire_truck_Zabrze_Hindenburg_before_1939.jpg/800px-Fire_truck_Zabrze_Hindenburg_before_1939.jpg"}</template>
-  </div>
 
-  <!-- Karta 2: Rozwijające się miasto -->
-  <div class="card" data-tag="przemysł" onclick="openLightbox(this)">
-    <div class="card-img-wrap">
-      <img class="card-img" loading="lazy"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Die_werdende_Gro%C3%9Fstadt_Hindenburg_1928_-_Trumpf.jpg/640px-Die_werdende_Gro%C3%9Fstadt_Hindenburg_1928_-_Trumpf.jpg"
-        alt="Hindenburg 1928" />
+    <!-- Filtry dekad -->
+    <div class="filters" id="filterContainer">
+        <button class="filter-btn active" data-decade="all">Wszystkie</button>
+        <button class="filter-btn" data-decade="1900">1900–1910</button>
+        <button class="filter-btn" data-decade="1910">1910–1920</button>
+        <button class="filter-btn" data-decade="1920">1920–1930</button>
+        <button class="filter-btn" data-decade="1930">1930–1940</button>
+        <button class="filter-btn" data-decade="1940">1940–1950</button>
+        <button class="filter-btn" data-decade="1950">1950–1960</button>
+        <button class="filter-btn" data-decade="1960">1960–1970</button>
+        <button class="filter-btn" data-decade="1970">1970–1980</button>
+        <button class="filter-btn" data-decade="1980">1980–1990</button>
+        <button class="filter-btn" data-decade="1990">1990–2000</button>
     </div>
-    <div class="card-caption">
-      <div class="card-year">1928</div>
-      <div class="card-title">Rozwijające się miasto Hindenburg</div>
-      <div class="card-desc">Widok na rozrastające się Zabrze w 1928 roku z kominami przemysłowymi na horyzoncie.</div>
-      <span class="card-tag">Przemysł</span>
-    </div>
-    <template class="lb-data">{"year":"1928","title":"Rozwijające się miasto Hindenburg (Zabrze), 1928","desc":"Widok ogólny na miasto Hindenburg O.S. w roku 1928. Zabrze było wówczas jednym z najszybciej rozwijających się miast przemysłowych Górnego Śląska.","src":"Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Die_werdende_Gro%C3%9Fstadt_Hindenburg_1928_-_Trumpf.jpg/800px-Die_werdende_Gro%C3%9Fstadt_Hindenburg_1928_-_Trumpf.jpg"}</template>
-  </div>
 
-  <!-- Karta 3: Ulica Kania (poprawione nawiasy) -->
-  <div class="card" data-tag="ulice" onclick="openLightbox(this)">
-    <div class="card-img-wrap">
-      <img class="card-img" loading="lazy"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Hindenburg%2C_Oberschl._-_Kaniastrasse._przed_1945_(71311634).jpg/640px-Hindenburg%2C_Oberschl._-_Kaniastrasse._przed_1945_(71311634).jpg"
-        alt="Kaniastrasse Zabrze" />
-    </div>
-    <div class="card-caption">
-      <div class="card-year">przed 1945</div>
-      <div class="card-title">Ulica Kania (Kaniastrasse)</div>
-      <div class="card-desc">Jedna z głównych ulic handlowych ówczesnego Hindenburg O.S. Pocztówka ze zbiorów Biblioteki Narodowej.</div>
-      <span class="card-tag">Ulice i place</span>
-    </div>
-    <template class="lb-data">{"year":"przed 1945","title":"Ulica Kania — Kaniastrasse, Hindenburg O.S.","desc":"Jedna z głównych ulic handlowych miasta. Pocztówka z okresu przed 1945 rokiem ze zbiorów Biblioteki Narodowej Polski, opublikowana w Wikimedia Commons.","src":"Biblioteka Narodowa / Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Hindenburg%2C_Oberschl._-_Kaniastrasse._przed_1945_(71311634).jpg/800px-Hindenburg%2C_Oberschl._-_Kaniastrasse._przed_1945_(71311634).jpg"}</template>
-  </div>
+    <div class="gallery" id="gallery"></div>
 
-  <!-- Karta 4: Kasyno Donnersmarckhütte (poprawione nawiasy) -->
-  <div class="card" data-tag="architektura" onclick="openLightbox(this)">
-    <div class="card-img-wrap">
-      <img class="card-img" loading="lazy"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Hindenburg%2C_O.-S._-_Kasino_der_Donnersmarckhutte._1919_(71312492).jpg/640px-Hindenburg%2C_O.-S._-_Kasino_der_Donnersmarckhutte._1919_(71312492).jpg"
-        alt="Kasyno Donnersmarckhütte" />
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <button class="close" id="closeLightbox">&times;</button>
+        <img id="lightboxImg" src="" alt="">
+        <div class="desc" id="lightboxDesc"></div>
     </div>
-    <div class="card-caption">
-      <div class="card-year">1919</div>
-      <div class="card-title">Kasyno Donnersmarckhütte</div>
-      <div class="card-desc">Budynek kasyna przy hucie Donnersmarcka — centrum towarzyskiego życia pracowników huty.</div>
-      <span class="card-tag">Architektura</span>
+
+    <!-- Modal edycji -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Dodaj nowe zdjęcie</h3>
+            <label>URL obrazu (link bezpośredni)</label>
+            <input type="text" id="imgUrl" placeholder="https://...">
+            <label>Nazwa / alt</label>
+            <input type="text" id="imgAlt" placeholder="Krótki opis zdjęcia">
+            <label>Rok</label>
+            <input type="text" id="imgYear" placeholder="np. 1938">
+            <label>Opis (wyświetlany w lightboxie)</label>
+            <textarea id="imgDesc" rows="2" placeholder="Szerszy kontekst..."></textarea>
+            <div class="btn-group">
+                <button class="btn" id="savePhotoBtn">Zapisz</button>
+                <button class="btn" id="cancelEditBtn">Anuluj</button>
+            </div>
+        </div>
     </div>
-    <template class="lb-data">{"year":"1919","title":"Kasyno Donnersmarckhütte, Hindenburg O.S.","desc":"Budynek kasyna przy słynnej hucie Donnersmarcka. Familia Donnersmarck była jednym z największych właścicieli przemysłowych Górnego Śląska. Pocztówka z 1919 roku.","src":"Biblioteka Narodowa / Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Hindenburg%2C_O.-S._-_Kasino_der_Donnersmarckhutte._1919_(71312492).jpg/800px-Hindenburg%2C_O.-S._-_Kasino_der_Donnersmarckhutte._1919_(71312492).jpg"}</template>
-  </div>
 
-  <!-- Karta 5: Plac Targowy -->
-  <div class="card" data-tag="architektura" onclick="openLightbox(this)">
-    <div class="card-img-wrap">
-      <img class="card-img" loading="lazy"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Hindenburg_1928_-_Der_Montag-Wochenmarktplatz_in_Zukunft.jpg/640px-Hindenburg_1928_-_Der_Montag-Wochenmarktplatz_in_Zukunft.jpg"
-        alt="Plac Targowy projekt 1928" />
-    </div>
-    <div class="card-caption">
-      <div class="card-year">1928</div>
-      <div class="card-title">Projekt Placu Targów Poniedziałkowych</div>
-      <div class="card-desc">Wizja przyszłej zabudowy centrum handlowego Zabrza, projekt z 1928 roku.</div>
-      <span class="card-tag">Architektura</span>
-    </div>
-    <template class="lb-data">{"year":"1928","title":"Projekt Placu Targów Poniedziałkowych, 1928","desc":"Projekt przyszłej zabudowy Placu Targów Poniedziałkowych (Montag-Wochenmarktplatz) w Zabrzu, opublikowany w 1928 roku. Pokazuje ambitne plany modernizacji centrum miasta.","src":"Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Hindenburg_1928_-_Der_Montag-Wochenmarktplatz_in_Zukunft.jpg/800px-Hindenburg_1928_-_Der_Montag-Wochenmarktplatz_in_Zukunft.jpg"}</template>
-  </div>
+    <footer>Źródło: Wikimedia Commons / NAC · domena publiczna</footer>
 
-  <!-- Karta 6: Projekt Bonatz -->
-  <div class="card" data-tag="architektura" onclick="openLightbox(this)">
-    <div class="card-img-wrap">
-      <img class="card-img" loading="lazy"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Hindenburg_Citygestaltung_1929_Wolf_Bonatz.jpg/640px-Hindenburg_Citygestaltung_1929_Wolf_Bonatz.jpg"
-        alt="Projekt centrum Bonatz 1929" />
-    </div>
-    <div class="card-caption">
-      <div class="card-year">1929</div>
-      <div class="card-title">Projekt centrum — arch. Bonatz</div>
-      <div class="card-desc">Jeden z konkursowych projektów zagospodarowania centrum Zabrza z 1929 roku, autorstwa architekta Paula Bonatz.</div>
-      <span class="card-tag">Architektura</span>
-    </div>
-    <template class="lb-data">{"year":"1929","title":"Konkursowy projekt centrum Zabrza — Paul Bonatz, 1929","desc":"Jeden z projektów złożonych na konkurs urbanistyczny przebudowy centrum Hindenburg O.S. (Zabrza) w 1929 roku. Autorstwa Paula Bonatz, wybitnego architekta niemieckiego.","src":"Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Hindenburg_Citygestaltung_1929_Wolf_Bonatz.jpg/800px-Hindenburg_Citygestaltung_1929_Wolf_Bonatz.jpg"}</template>
-  </div>
+    <script>
+        const STORAGE_KEY = 'zabrzeArchivePhotos';
+        const defaultPhotos = [
+            {
+                id: 1,
+                src: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Illustrierter_F%C3%BChrer_durch_das_Oberschlesische_Industriegebiet_mit_besonderer_Ber%C3%BCcksichtigung_der_Orte_Kattowitz%2C_K%C3%B6nigsh%C3%BCtte%2C_Beuthen%2C_Tarnowitz%2C_Zabrze_und_Gleiwitz_1904_%2890506001%29.jpg/1280px-thumbnail.jpg",
+                alt: "Huta Zabrze",
+                year: "1904",
+                desc: "Huta Zabrze (widok z przewodnika po okręgu przemysłowym), ok. 1904 r."
+            },
+            {
+                id: 2,
+                src: "https://upload.wikimedia.org/wikipedia/commons/e/ef/Hindenburg%2C_Oberschl._Michaeltorplatz_u._Horst_Wessel_Denkmal.jpg",
+                alt: "Plac Słowiański (Michaeltorplatz) w Zabrzu",
+                year: "1935",
+                desc: "Plac Słowiański (Michaeltorplatz) z pomnikiem Horsta Wessela, ok. 1935 r."
+            },
+            {
+                id: 3,
+                src: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Krzysztof_Dziadak_na_prote%C5%9Bcie_w_Zabrzu._1992_r.jpg/1280px-Krzysztof_Dziadak_na_prote%C5%9Bcie_w_Zabrzu._1992_r.jpg",
+                alt: "Protest ekologiczny w Zabrzu",
+                year: "1992",
+                desc: "Protest przeciwko degradacji środowiska, 1992 r. (fot. Krzysztof Dziadak)"
+            },
+            {
+                id: 4,
+                src: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Krzysztof_dziadak_i_Waldemar_Pawlak.jpg/960px-Krzysztof_dziadak_i_Waldemar_Pawlak.jpg",
+                alt: "Spotkanie na KWK Makoszowy",
+                year: "1992",
+                desc: "Spotkanie z Waldemarem Pawlakiem na KWK Makoszowy po protestach górników, 1992 r."
+            }
+        ];
 
-  <!-- Karta 7: Projekt Poelzig -->
-  <div class="card" data-tag="architektura" onclick="openLightbox(this)">
-    <div class="card-img-wrap">
-      <img class="card-img" loading="lazy"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Hindenburg_Citygestaltung_1929_Wolf_Poelzig.jpg/640px-Hindenburg_Citygestaltung_1929_Wolf_Poelzig.jpg"
-        alt="Projekt centrum Poelzig 1929" />
-    </div>
-    <div class="card-caption">
-      <div class="card-year">1929</div>
-      <div class="card-title">Projekt centrum — arch. Poelzig</div>
-      <div class="card-desc">Konkursowy projekt przebudowy centrum Zabrza z 1929 roku, autorstwa Hansa Poelziga.</div>
-      <span class="card-tag">Architektura</span>
-    </div>
-    <template class="lb-data">{"year":"1929","title":"Konkursowy projekt centrum Zabrza — Hans Poelzig, 1929","desc":"Projekt architekta Hansa Poelziga złożony na konkurs urbanistyczny centrum Hindenburg O.S. w 1929 roku. Poelzig był jednym z czołowych architektów ekspresjonizmu niemieckiego.","src":"Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Hindenburg_Citygestaltung_1929_Wolf_Poelzig.jpg/800px-Hindenburg_Citygestaltung_1929_Wolf_Poelzig.jpg"}</template>
-  </div>
+        let photos = [];
+        let currentFilter = 'all';   // aktywny filtr dekady
 
-  <!-- Karta 8: Admiralspalast (poprawione nawiasy) -->
-  <div class="card" data-tag="architektura" onclick="openLightbox(this)">
-    <div class="card-img-wrap">
-      <img class="card-img" loading="lazy"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Hindenburg_-_Admiralspalast._przed_1935_(71311675).jpg/640px-Hindenburg_-_Admiralspalast._przed_1935_(71311675).jpg"
-        alt="Admiralspalast Zabrze" />
-    </div>
-    <div class="card-caption">
-      <div class="card-year">przed 1935</div>
-      <div class="card-title">Admiralspalast</div>
-      <div class="card-desc">Budynek Admiralspalast — teatr i miejsce rozrywki w przedwojennym Zabrzu. Pocztówka z archiwum Biblioteki Narodowej.</div>
-      <span class="card-tag">Architektura</span>
-    </div>
-    <template class="lb-data">{"year":"przed 1935","title":"Admiralspalast — teatr i centrum rozrywki w Zabrzu","desc":"Admiralspalast był jednym z najważniejszych miejsc kulturalnych i rozrywkowych przedwojennego Zabrza. Budynek imponował elegancką fasadą. Pocztówka ze zbiorów Biblioteki Narodowej.","src":"Biblioteka Narodowa / Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Hindenburg_-_Admiralspalast._przed_1935_(71311675).jpg/800px-Hindenburg_-_Admiralspalast._przed_1935_(71311675).jpg"}</template>
-  </div>
+        // Wczytaj z localStorage
+        function loadPhotos() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    photos = JSON.parse(stored);
+                } catch (e) {
+                    photos = [...defaultPhotos];
+                }
+            } else {
+                photos = [...defaultPhotos];
+            }
+        }
 
-</div>
+        function savePhotos() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(photos));
+        }
 
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox" onclick="closeLightboxOnBg(event)">
-  <div class="lb-inner">
-    <button class="lb-close" onclick="closeLightbox()">✕ zamknij</button>
-    <img class="lb-img" id="lb-img" src="" alt="" />
-    <div class="lb-caption">
-      <div class="lb-year-tag" id="lb-year"></div>
-      <div class="lb-title" id="lb-title"></div>
-      <div class="lb-desc" id="lb-desc"></div>
-      <div class="lb-source" id="lb-source"></div>
-    </div>
-  </div>
-</div>
+        function resetToDefault() {
+            photos = [...defaultPhotos];
+            savePhotos();
+            renderGallery(currentFilter);
+        }
 
-<footer>
-  <p>Zabrze Dawne — Archiwum Fotograficzne XX Wieku</p>
-  <p>Wszystkie fotografie z domeny publicznej — Wikimedia Commons / Biblioteka Narodowa Polona</p>
-  <p style="margin-top:0.5rem">
-    Więcej zdjęć: <a href="https://commons.wikimedia.org/wiki/Category:History_of_Zabrze" target="_blank">Wikimedia Commons</a> ·
-    <a href="https://www.fotopolska.eu/Zabrze" target="_blank">FotoPolska.eu</a> ·
-    <a href="https://polona.pl" target="_blank">Polona.pl</a>
-  </p>
-</footer>
+        // ---------- GALERIA ----------
+        const galleryEl = document.getElementById('gallery');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxDesc = document.getElementById('lightboxDesc');
 
-<script>
-  function openLightbox(card) {
-    const data = JSON.parse(card.querySelector('template.lb-data').innerHTML);
-    document.getElementById('lb-img').src = data.img;
-    document.getElementById('lb-year').textContent = data.year;
-    document.getElementById('lb-title').textContent = data.title;
-    document.getElementById('lb-desc').textContent = data.desc;
-    document.getElementById('lb-source').textContent = 'Źródło: ' + data.src;
-    document.getElementById('lightbox').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
+        // Filtruje zdjęcia według dekady
+        function filterByDecade(photosArray, decade) {
+            if (decade === 'all') return photosArray;
+            const decadeStart = parseInt(decade, 10);
+            if (isNaN(decadeStart)) return [];
+            return photosArray.filter(photo => {
+                const yearNum = parseInt(photo.year, 10);
+                if (isNaN(yearNum)) return false;
+                return yearNum >= decadeStart && yearNum < decadeStart + 10;
+            });
+        }
 
-  function closeLightbox() {
-    document.getElementById('lightbox').classList.remove('open');
-    document.body.style.overflow = '';
-  }
+        function renderGallery(decade = 'all') {
+            currentFilter = decade;  // zapamiętujemy
+            const filtered = filterByDecade(photos, decade);
+            galleryEl.innerHTML = '';
 
-  function closeLightboxOnBg(e) {
-    if (e.target === document.getElementById('lightbox')) closeLightbox();
-  }
+            if (filtered.length === 0) {
+                galleryEl.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#aaa;">Brak zdjęć w wybranej dekadzie.</p>';
+                return;
+            }
 
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+            filtered.forEach((photo, indexInFiltered) => {
+                // Znajdź oryginalny indeks w głównej tablicy (potrzebny do edycji/usuwania)
+                const realIndex = photos.findIndex(p => p.id === photo.id);
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${photo.src}" alt="${photo.alt}" loading="lazy"
+                         onclick="openLightbox('${photo.src}', '${photo.year} – ${photo.desc}')">
+                    <div class="actions">
+                        <button class="icon-btn" title="Edytuj" onclick="event.stopPropagation(); openEditModal(${realIndex})">✎</button>
+                        <button class="icon-btn" title="Usuń" onclick="event.stopPropagation(); deletePhoto(${realIndex})">✕</button>
+                    </div>
+                    <div class="caption"><span class="year">${photo.year}</span>${photo.alt}</div>
+                `;
+                galleryEl.appendChild(card);
+            });
 
-  function filterCards(tag, btn) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.card').forEach(card => {
-      card.style.display = (tag === 'wszystkie' || card.dataset.tag === tag) ? '' : 'none';
-    });
-  }
-</script>
+            // Aktualizuj aktywny przycisk filtru
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-decade') === decade) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Lightbox
+        function openLightbox(src, descText) {
+            lightboxImg.src = src;
+            lightboxDesc.textContent = descText;
+            lightbox.classList.add('active');
+        }
+
+        document.getElementById('closeLightbox').addEventListener('click', () => lightbox.classList.remove('active'));
+        lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.classList.remove('active'); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') lightbox.classList.remove('active'); });
+
+        // ---------- FILTRY ----------
+        document.getElementById('filterContainer').addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                const decade = e.target.getAttribute('data-decade');
+                renderGallery(decade);
+            }
+        });
+
+        // ---------- DODAWANIE / EDYCJA ----------
+        const modal = document.getElementById('editModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const imgUrlInput = document.getElementById('imgUrl');
+        const imgAltInput = document.getElementById('imgAlt');
+        const imgYearInput = document.getElementById('imgYear');
+        const imgDescInput = document.getElementById('imgDesc');
+        let editingIndex = -1;
+
+        function openEditModal(index = -1) {
+            editingIndex = index;
+            if (index >= 0 && index < photos.length) {
+                const p = photos[index];
+                modalTitle.textContent = 'Edytuj zdjęcie';
+                imgUrlInput.value = p.src;
+                imgAltInput.value = p.alt;
+                imgYearInput.value = p.year;
+                imgDescInput.value = p.desc;
+            } else {
+                modalTitle.textContent = 'Dodaj nowe zdjęcie';
+                imgUrlInput.value = '';
+                imgAltInput.value = '';
+                imgYearInput.value = '';
+                imgDescInput.value = '';
+            }
+            modal.classList.add('active');
+            imgUrlInput.focus();
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        document.getElementById('addPhotoBtn').addEventListener('click', () => openEditModal(-1));
+        document.getElementById('cancelEditBtn').addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+        document.getElementById('savePhotoBtn').addEventListener('click', () => {
+            const newPhoto = {
+                id: editingIndex >= 0 ? photos[editingIndex].id : Date.now(),
+                src: imgUrlInput.value.trim(),
+                alt: imgAltInput.value.trim() || 'Bez tytułu',
+                year: imgYearInput.value.trim() || '????',
+                desc: imgDescInput.value.trim() || 'Brak opisu'
+            };
+
+            if (!newPhoto.src) {
+                alert('Proszę podać URL obrazu.');
+                return;
+            }
+
+            if (editingIndex >= 0) {
+                photos[editingIndex] = newPhoto;
+            } else {
+                photos.push(newPhoto);
+            }
+
+            savePhotos();
+            renderGallery(currentFilter);  // odśwież z aktualnym filtrem
+            closeModal();
+        });
+
+        // Usuwanie
+        function deletePhoto(index) {
+            if (confirm('Czy na pewno usunąć to zdjęcie?')) {
+                photos.splice(index, 1);
+                savePhotos();
+                renderGallery(currentFilter);
+            }
+        }
+
+        // Inicjalizacja
+        loadPhotos();
+        renderGallery('all');
+
+        // Udostępnij reset
+        window.resetToDefault = resetToDefault;
+    </script>
 </body>
 </html>
