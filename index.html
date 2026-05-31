@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zabrze Dawne — Archiwum Fotograficzne XX Wieku</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1a1410; --paper: #f5f0e8; --sepia: #8b6914;
+      --sepia-light: #d4b483; --sepia-pale: #ede0c4;
+      --brown-mid: #5c3d1e; --muted: #6b5a3e; --border: #c9a96e;
+    }
+    body { background: var(--paper); color: var(--ink); font-family: 'Source Serif 4', Georgia, serif; font-weight: 300; line-height: 1.7; }
+
+    header { text-align: center; padding: 4rem 2rem 3rem; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+    header::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(139,105,20,0.07) 39px, rgba(139,105,20,0.07) 40px); pointer-events: none; }
+    .header-ornament { font-size: 0.75rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--sepia); margin-bottom: 1rem; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.4rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.1; margin-bottom: 0.4rem; }
+    .header-sub { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.1rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .header-rule { display: flex; align-items: center; justify-content: center; gap: 0.75rem; color: var(--sepia); }
+    .header-rule::before, .header-rule::after { content: ''; width: 80px; height: 1px; background: var(--border); }
+
+    .intro { max-width: 680px; margin: 3rem auto; padding: 0 2rem; text-align: center; font-size: 1.05rem; color: var(--muted); }
+
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; padding: 1.5rem 2rem; border-top: 1px solid var(--sepia-pale); border-bottom: 1px solid var(--sepia-pale); margin-bottom: 3rem; }
+    .filter-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: 'Source Serif 4', serif; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.4rem 1rem; cursor: pointer; transition: background 0.2s, color 0.2s; }
+    .filter-btn:hover, .filter-btn.active { background: var(--sepia); border-color: var(--sepia); color: var(--paper); }
+
+    .gallery { max-width: 1200px; margin: 0 auto; padding: 0 2rem 4rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2.5rem; }
+
+    .card { display: flex; flex-direction: column; cursor: pointer; transition: transform 0.25s; }
+    .card:hover { transform: translateY(-4px); }
+
+    .card-img-wrap { position: relative; overflow: hidden; background: var(--sepia-pale); border: 1px solid var(--border); aspect-ratio: 4/3; }
+    .card-img { width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(0.55) contrast(1.05) brightness(0.97); transition: filter 0.3s; }
+    .card:hover .card-img { filter: sepia(0.25) contrast(1.08) brightness(1.02); }
+
+    .card-caption { border: 1px solid var(--border); border-top: none; padding: 0.85rem 1rem; background: #faf6ed; flex: 1; }
+    .card-year { font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--sepia); margin-bottom: 0.25rem; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--ink); margin-bottom: 0.3rem; }
+    .card-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+    .card-tag { display: inline-block; margin-top: 0.5rem; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sepia); border: 1px solid var(--sepia-light); padding: 0.15rem 0.5rem; }
+
+    .lightbox { display: none; position: fixed; inset: 0; background: rgba(15,10,5,0.92); z-index: 100; align-items: center; justify-content: center; padding: 2rem; }
+    .lightbox.open { display: flex; }
+    .lb-inner { max-width: 820px; width: 100%; position: relative; }
+    .lb-close { position: absolute; top: -2.5rem; right: 0; background: none; border: none; color: var(--sepia-light); font-size: 1.5rem; cursor: pointer; font-family: serif; }
+    .lb-img { width: 100%; display: block; filter: sepia(0.45) contrast(1.05); border: 2px solid var(--border); }
+    .lb-caption { background: var(--ink); padding: 1.25rem 1.5rem; border: 1px solid var(--sepia); border-top: none; }
+    .lb-year-tag { font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--sepia-light); margin-bottom: 0.4rem; }
+    .lb-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--paper); margin-bottom: 0.5rem; }
+    .lb-desc { font-size: 0.9rem; color: #a89070; line-height: 1.6; }
+    .lb-source { margin-top: 0.75rem; font-size: 0.75rem; color: var(--sepia); font-style: italic; }
+
+    footer { text-align: center; padding: 2.5rem 2rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--muted); line-height: 1.8; }
+    footer a { color: var(--sepia); }
+
+    @media (max-width: 600px) { .gallery { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-ornament">Śląsk · Górny Śląsk · Zabrze</div>
+  <h1>Zabrze Dawne</h1>
+  <p class="header-sub">Archiwum fotograficzne XX wieku</p>
+  <div class="header-rule">✦</div>
+</header>
+
+<p class="intro">
+  Zbiór archiwalnych fotografii Zabrza z domeny publicznej —
+  ulice, zakłady przemysłowe, architektura i życie codzienne
+  miasta na przestrzeni XX wieku.
+</p>
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterCards('wszystkie',this)">Wszystkie</button>
+  <button class="filter-btn" onclick="filterCards('architektura',this)">Architektura</button>
+  <button class="filter-btn" onclick="filterCards('przemysł',this)">Przemysł</button>
+  <button class="filter-btn" onclick="filterCards('ulice',this)">Ulice i place</button>
+  <button class="filter-btn" onclick="filterCards('życie',this)">Życie codzienne</button>
+</div>
+
+<div class="gallery" id="gallery">
+
+  <!-- Karta 1: Wóz strażacki -->
+  <div class="card" data-tag="życie" onclick="openLightbox(this)">
+    <div class="card-img-wrap">
+      <img class="card-img" loading="lazy"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Fire_truck_Zabrze_Hindenburg_before_1939.jpg/640px-Fire_truck_Zabrze_Hindenburg_before_1939.jpg"
+        alt="Wóz strażacki Zabrze" />
+    </div>
+    <div class="card-caption">
+      <div class="card-year">przed 1939</div>
+      <div class="card-title">Wóz strażacki straży miejskiej</div>
+      <div class="card-desc">Jeden z pierwszych zmotoryzowanych wozów straży pożarnej Zabrza z okresu przed II wojną światową.</div>
+      <span class="card-tag">Życie codzienne</span>
+    </div>
+    <template class="lb-data">{"year":"przed 1939","title":"Wóz strażacki straży miejskiej w Zabrzu","desc":"Jeden z pierwszych zmotoryzowanych wozów straży pożarnej Zabrza. Fotografia z okresu przed II wojną światową, kiedy miasto nosiło nazwę Hindenburg O.S.","src":"Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Fire_truck_Zabrze_Hindenburg_before_1939.jpg/800px-Fire_truck_Zabrze_Hindenburg_before_1939.jpg"}</template>
+  </div>
+
+  <!-- Karta 2: Rozwijające się miasto -->
+  <div class="card" data-tag="przemysł" onclick="openLightbox(this)">
+    <div class="card-img-wrap">
+      <img class="card-img" loading="lazy"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Die_werdende_Gro%C3%9Fstadt_Hindenburg_1928_-_Trumpf.jpg/640px-Die_werdende_Gro%C3%9Fstadt_Hindenburg_1928_-_Trumpf.jpg"
+        alt="Hindenburg 1928" />
+    </div>
+    <div class="card-caption">
+      <div class="card-year">1928</div>
+      <div class="card-title">Rozwijające się miasto Hindenburg</div>
+      <div class="card-desc">Widok na rozrastające się Zabrze w 1928 roku z kominami przemysłowymi na horyzoncie.</div>
+      <span class="card-tag">Przemysł</span>
+    </div>
+    <template class="lb-data">{"year":"1928","title":"Rozwijające się miasto Hindenburg (Zabrze), 1928","desc":"Widok ogólny na miasto Hindenburg O.S. w roku 1928. Zabrze było wówczas jednym z najszybciej rozwijających się miast przemysłowych Górnego Śląska.","src":"Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Die_werdende_Gro%C3%9Fstadt_Hindenburg_1928_-_Trumpf.jpg/800px-Die_werdende_Gro%C3%9Fstadt_Hindenburg_1928_-_Trumpf.jpg"}</template>
+  </div>
+
+  <!-- Karta 3: Ulica Kania (poprawione nawiasy) -->
+  <div class="card" data-tag="ulice" onclick="openLightbox(this)">
+    <div class="card-img-wrap">
+      <img class="card-img" loading="lazy"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Hindenburg%2C_Oberschl._-_Kaniastrasse._przed_1945_(71311634).jpg/640px-Hindenburg%2C_Oberschl._-_Kaniastrasse._przed_1945_(71311634).jpg"
+        alt="Kaniastrasse Zabrze" />
+    </div>
+    <div class="card-caption">
+      <div class="card-year">przed 1945</div>
+      <div class="card-title">Ulica Kania (Kaniastrasse)</div>
+      <div class="card-desc">Jedna z głównych ulic handlowych ówczesnego Hindenburg O.S. Pocztówka ze zbiorów Biblioteki Narodowej.</div>
+      <span class="card-tag">Ulice i place</span>
+    </div>
+    <template class="lb-data">{"year":"przed 1945","title":"Ulica Kania — Kaniastrasse, Hindenburg O.S.","desc":"Jedna z głównych ulic handlowych miasta. Pocztówka z okresu przed 1945 rokiem ze zbiorów Biblioteki Narodowej Polski, opublikowana w Wikimedia Commons.","src":"Biblioteka Narodowa / Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Hindenburg%2C_Oberschl._-_Kaniastrasse._przed_1945_(71311634).jpg/800px-Hindenburg%2C_Oberschl._-_Kaniastrasse._przed_1945_(71311634).jpg"}</template>
+  </div>
+
+  <!-- Karta 4: Kasyno Donnersmarckhütte (poprawione nawiasy) -->
+  <div class="card" data-tag="architektura" onclick="openLightbox(this)">
+    <div class="card-img-wrap">
+      <img class="card-img" loading="lazy"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Hindenburg%2C_O.-S._-_Kasino_der_Donnersmarckhutte._1919_(71312492).jpg/640px-Hindenburg%2C_O.-S._-_Kasino_der_Donnersmarckhutte._1919_(71312492).jpg"
+        alt="Kasyno Donnersmarckhütte" />
+    </div>
+    <div class="card-caption">
+      <div class="card-year">1919</div>
+      <div class="card-title">Kasyno Donnersmarckhütte</div>
+      <div class="card-desc">Budynek kasyna przy hucie Donnersmarcka — centrum towarzyskiego życia pracowników huty.</div>
+      <span class="card-tag">Architektura</span>
+    </div>
+    <template class="lb-data">{"year":"1919","title":"Kasyno Donnersmarckhütte, Hindenburg O.S.","desc":"Budynek kasyna przy słynnej hucie Donnersmarcka. Familia Donnersmarck była jednym z największych właścicieli przemysłowych Górnego Śląska. Pocztówka z 1919 roku.","src":"Biblioteka Narodowa / Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Hindenburg%2C_O.-S._-_Kasino_der_Donnersmarckhutte._1919_(71312492).jpg/800px-Hindenburg%2C_O.-S._-_Kasino_der_Donnersmarckhutte._1919_(71312492).jpg"}</template>
+  </div>
+
+  <!-- Karta 5: Plac Targowy -->
+  <div class="card" data-tag="architektura" onclick="openLightbox(this)">
+    <div class="card-img-wrap">
+      <img class="card-img" loading="lazy"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Hindenburg_1928_-_Der_Montag-Wochenmarktplatz_in_Zukunft.jpg/640px-Hindenburg_1928_-_Der_Montag-Wochenmarktplatz_in_Zukunft.jpg"
+        alt="Plac Targowy projekt 1928" />
+    </div>
+    <div class="card-caption">
+      <div class="card-year">1928</div>
+      <div class="card-title">Projekt Placu Targów Poniedziałkowych</div>
+      <div class="card-desc">Wizja przyszłej zabudowy centrum handlowego Zabrza, projekt z 1928 roku.</div>
+      <span class="card-tag">Architektura</span>
+    </div>
+    <template class="lb-data">{"year":"1928","title":"Projekt Placu Targów Poniedziałkowych, 1928","desc":"Projekt przyszłej zabudowy Placu Targów Poniedziałkowych (Montag-Wochenmarktplatz) w Zabrzu, opublikowany w 1928 roku. Pokazuje ambitne plany modernizacji centrum miasta.","src":"Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Hindenburg_1928_-_Der_Montag-Wochenmarktplatz_in_Zukunft.jpg/800px-Hindenburg_1928_-_Der_Montag-Wochenmarktplatz_in_Zukunft.jpg"}</template>
+  </div>
+
+  <!-- Karta 6: Projekt Bonatz -->
+  <div class="card" data-tag="architektura" onclick="openLightbox(this)">
+    <div class="card-img-wrap">
+      <img class="card-img" loading="lazy"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Hindenburg_Citygestaltung_1929_Wolf_Bonatz.jpg/640px-Hindenburg_Citygestaltung_1929_Wolf_Bonatz.jpg"
+        alt="Projekt centrum Bonatz 1929" />
+    </div>
+    <div class="card-caption">
+      <div class="card-year">1929</div>
+      <div class="card-title">Projekt centrum — arch. Bonatz</div>
+      <div class="card-desc">Jeden z konkursowych projektów zagospodarowania centrum Zabrza z 1929 roku, autorstwa architekta Paula Bonatz.</div>
+      <span class="card-tag">Architektura</span>
+    </div>
+    <template class="lb-data">{"year":"1929","title":"Konkursowy projekt centrum Zabrza — Paul Bonatz, 1929","desc":"Jeden z projektów złożonych na konkurs urbanistyczny przebudowy centrum Hindenburg O.S. (Zabrza) w 1929 roku. Autorstwa Paula Bonatz, wybitnego architekta niemieckiego.","src":"Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Hindenburg_Citygestaltung_1929_Wolf_Bonatz.jpg/800px-Hindenburg_Citygestaltung_1929_Wolf_Bonatz.jpg"}</template>
+  </div>
+
+  <!-- Karta 7: Projekt Poelzig -->
+  <div class="card" data-tag="architektura" onclick="openLightbox(this)">
+    <div class="card-img-wrap">
+      <img class="card-img" loading="lazy"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Hindenburg_Citygestaltung_1929_Wolf_Poelzig.jpg/640px-Hindenburg_Citygestaltung_1929_Wolf_Poelzig.jpg"
+        alt="Projekt centrum Poelzig 1929" />
+    </div>
+    <div class="card-caption">
+      <div class="card-year">1929</div>
+      <div class="card-title">Projekt centrum — arch. Poelzig</div>
+      <div class="card-desc">Konkursowy projekt przebudowy centrum Zabrza z 1929 roku, autorstwa Hansa Poelziga.</div>
+      <span class="card-tag">Architektura</span>
+    </div>
+    <template class="lb-data">{"year":"1929","title":"Konkursowy projekt centrum Zabrza — Hans Poelzig, 1929","desc":"Projekt architekta Hansa Poelziga złożony na konkurs urbanistyczny centrum Hindenburg O.S. w 1929 roku. Poelzig był jednym z czołowych architektów ekspresjonizmu niemieckiego.","src":"Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Hindenburg_Citygestaltung_1929_Wolf_Poelzig.jpg/800px-Hindenburg_Citygestaltung_1929_Wolf_Poelzig.jpg"}</template>
+  </div>
+
+  <!-- Karta 8: Admiralspalast (poprawione nawiasy) -->
+  <div class="card" data-tag="architektura" onclick="openLightbox(this)">
+    <div class="card-img-wrap">
+      <img class="card-img" loading="lazy"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Hindenburg_-_Admiralspalast._przed_1935_(71311675).jpg/640px-Hindenburg_-_Admiralspalast._przed_1935_(71311675).jpg"
+        alt="Admiralspalast Zabrze" />
+    </div>
+    <div class="card-caption">
+      <div class="card-year">przed 1935</div>
+      <div class="card-title">Admiralspalast</div>
+      <div class="card-desc">Budynek Admiralspalast — teatr i miejsce rozrywki w przedwojennym Zabrzu. Pocztówka z archiwum Biblioteki Narodowej.</div>
+      <span class="card-tag">Architektura</span>
+    </div>
+    <template class="lb-data">{"year":"przed 1935","title":"Admiralspalast — teatr i centrum rozrywki w Zabrzu","desc":"Admiralspalast był jednym z najważniejszych miejsc kulturalnych i rozrywkowych przedwojennego Zabrza. Budynek imponował elegancką fasadą. Pocztówka ze zbiorów Biblioteki Narodowej.","src":"Biblioteka Narodowa / Wikimedia Commons — domena publiczna","img":"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Hindenburg_-_Admiralspalast._przed_1935_(71311675).jpg/800px-Hindenburg_-_Admiralspalast._przed_1935_(71311675).jpg"}</template>
+  </div>
+
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightboxOnBg(event)">
+  <div class="lb-inner">
+    <button class="lb-close" onclick="closeLightbox()">✕ zamknij</button>
+    <img class="lb-img" id="lb-img" src="" alt="" />
+    <div class="lb-caption">
+      <div class="lb-year-tag" id="lb-year"></div>
+      <div class="lb-title" id="lb-title"></div>
+      <div class="lb-desc" id="lb-desc"></div>
+      <div class="lb-source" id="lb-source"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Zabrze Dawne — Archiwum Fotograficzne XX Wieku</p>
+  <p>Wszystkie fotografie z domeny publicznej — Wikimedia Commons / Biblioteka Narodowa Polona</p>
+  <p style="margin-top:0.5rem">
+    Więcej zdjęć: <a href="https://commons.wikimedia.org/wiki/Category:History_of_Zabrze" target="_blank">Wikimedia Commons</a> ·
+    <a href="https://www.fotopolska.eu/Zabrze" target="_blank">FotoPolska.eu</a> ·
+    <a href="https://polona.pl" target="_blank">Polona.pl</a>
+  </p>
+</footer>
+
+<script>
+  function openLightbox(card) {
+    const data = JSON.parse(card.querySelector('template.lb-data').innerHTML);
+    document.getElementById('lb-img').src = data.img;
+    document.getElementById('lb-year').textContent = data.year;
+    document.getElementById('lb-title').textContent = data.title;
+    document.getElementById('lb-desc').textContent = data.desc;
+    document.getElementById('lb-source').textContent = 'Źródło: ' + data.src;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function closeLightboxOnBg(e) {
+    if (e.target === document.getElementById('lightbox')) closeLightbox();
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+  function filterCards(tag, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.card').forEach(card => {
+      card.style.display = (tag === 'wszystkie' || card.dataset.tag === tag) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>
